@@ -1,173 +1,178 @@
 'use client'
 
-import { useEffect, useState } from 'react'
-import { useSearchParams, useRouter } from 'next/navigation'
-import { CheckCircle, Clock, Utensils } from 'lucide-react'
+import { useEffect, useState, Suspense } from 'react'
+import { useSearchParams } from 'next/navigation'
+import Link from 'next/link'
+import { CheckCircle, Home, ArrowLeft } from 'lucide-react'
 import { useOrderStore } from '@/lib/orderStore'
-import { Order } from '@/lib/types'
 import Confetti from 'react-confetti'
 
-export default function OrderSuccessPage() {
+function SuccessPageContent() {
   const searchParams = useSearchParams()
-  const router = useRouter()
   const orderId = searchParams.get('orderId')
   const { orders } = useOrderStore()
-  
-  const [order, setOrder] = useState<Order | null>(null)
   const [showConfetti, setShowConfetti] = useState(true)
 
-  useEffect(() => {
-    if (orderId) {
-      const foundOrder = orders.find(o => o.id === orderId)
-      setOrder(foundOrder || null)
-    }
+  const order = orders.find(o => o.id === orderId)
 
-    // Stop confetti after 5 seconds
+  useEffect(() => {
     const timer = setTimeout(() => setShowConfetti(false), 5000)
     return () => clearTimeout(timer)
-  }, [orderId, orders])
+  }, [])
 
-  if (!order) {
+  if (!orderId || !order) {
     return (
       <div className="min-h-screen bg-cream flex items-center justify-center p-4">
         <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md text-center">
-          <p className="text-gray-600">Commande introuvable...</p>
-          <button
-            onClick={() => router.push('/')}
-            className="mt-4 px-6 py-3 bg-primary hover:bg-primary/90 text-white rounded-full font-semibold transition-colors"
+          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <span className="text-3xl">❌</span>
+          </div>
+          <h2 className="text-2xl font-bold text-charcoal mb-4">
+            Commande introuvable
+          </h2>
+          <p className="text-gray-600 mb-6">
+            Impossible de trouver les détails de votre commande.
+          </p>
+          <Link
+            href="/"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-primary hover:bg-primary/90 text-white rounded-full font-semibold transition-colors"
           >
+            <Home className="w-5 h-5" />
             Retour à l'accueil
-          </button>
+          </Link>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-cream flex items-center justify-center p-4">
-      {showConfetti && (
-        <Confetti
-          width={typeof window !== 'undefined' ? window.innerWidth : 300}
-          height={typeof window !== 'undefined' ? window.innerHeight : 200}
-          recycle={false}
-          numberOfPieces={500}
-        />
-      )}
+    <div className="min-h-screen bg-cream">
+      {showConfetti && <Confetti recycle={false} numberOfPieces={500} />}
 
-      <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-2xl w-full">
-        {/* Success Icon */}
-        <div className="text-center mb-8">
-          <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <CheckCircle className="w-12 h-12 text-green-600" />
-          </div>
-          <h1 className="text-4xl font-serif font-bold text-charcoal mb-2">
-            Commande Confirmée!
-          </h1>
-          <p className="text-xl text-gray-600">
-            Merci {order.customerName}
-          </p>
-        </div>
-
-        {/* Order Details */}
-        <div className="bg-cream rounded-xl p-6 mb-6">
-          <div className="grid grid-cols-2 gap-4 mb-4">
-            <div className="text-center p-4 bg-white rounded-lg">
-              <div className="text-3xl font-bold text-primary mb-1">#{order.orderNumber}</div>
-              <div className="text-sm text-gray-600">Numéro de commande</div>
-            </div>
-            <div className="text-center p-4 bg-white rounded-lg">
-              <div className="text-3xl font-bold text-primary mb-1">Table {order.tableNumber}</div>
-              <div className="text-sm text-gray-600">Votre table</div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-lg p-4">
-            <h3 className="font-serif font-bold text-lg text-charcoal mb-3">Votre Commande</h3>
-            <div className="space-y-2">
-              {order.items.map((item, index) => (
-                <div key={index} className="flex justify-between text-sm">
-                  <span className="text-gray-600">
-                    {item.quantity}x {item.menuItemName}
-                  </span>
-                  <span className="font-semibold text-charcoal">
-                    {(item.unitPrice * item.quantity).toFixed(2)}€
-                  </span>
-                </div>
-              ))}
-              <div className="pt-3 border-t border-gray-200 flex justify-between font-bold">
-                <span>Total</span>
-                <span className="text-primary text-lg">{order.total.toFixed(2)}€</span>
+      <div className="container mx-auto px-4 py-12 sm:py-20">
+        <div className="max-w-2xl mx-auto">
+          {/* Success Card */}
+          <div className="bg-white rounded-3xl shadow-2xl overflow-hidden">
+            {/* Header */}
+            <div className="bg-gradient-to-r from-green-500 to-green-600 p-8 text-center">
+              <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center mx-auto mb-4">
+                <CheckCircle className="w-12 h-12 text-green-500" />
               </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Status Timeline */}
-        <div className="bg-gradient-to-r from-primary/10 to-secondary/10 rounded-xl p-6 mb-6">
-          <h3 className="font-serif font-bold text-lg text-charcoal mb-4 text-center">
-            Statut de votre commande
-          </h3>
-          <div className="flex items-center justify-between max-w-md mx-auto">
-            <div className="flex flex-col items-center flex-1">
-              <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center mb-2">
-                <CheckCircle className="w-6 h-6 text-white" />
-              </div>
-              <span className="text-xs text-center font-semibold text-green-600">Reçue</span>
-            </div>
-            
-            <div className="flex-1 h-1 bg-gray-300 relative">
-              <div className="absolute top-0 left-0 h-full bg-primary animate-pulse w-1/2"></div>
-            </div>
-            
-            <div className="flex flex-col items-center flex-1">
-              <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center mb-2 animate-pulse">
-                <Clock className="w-6 h-6 text-white" />
-              </div>
-              <span className="text-xs text-center font-semibold text-primary">En préparation</span>
-            </div>
-            
-            <div className="flex-1 h-1 bg-gray-300"></div>
-            
-            <div className="flex flex-col items-center flex-1">
-              <div className="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center mb-2">
-                <Utensils className="w-6 h-6 text-gray-500" />
-              </div>
-              <span className="text-xs text-center font-semibold text-gray-500">Prête</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Instructions */}
-        <div className="text-center space-y-4">
-          <p className="text-gray-600">
-            Votre commande a été envoyée en cuisine. Nous vous servirons dès qu'elle sera prête!
-          </p>
-          
-          {order.specialInstructions && (
-            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-              <p className="text-sm text-yellow-800">
-                <span className="font-semibold">Instructions: </span>
-                {order.specialInstructions}
+              <h1 className="text-3xl sm:text-4xl font-bold text-white mb-2">
+                Commande Confirmée ! 🎉
+              </h1>
+              <p className="text-green-50 text-lg">
+                Merci {order.customerName} !
               </p>
             </div>
-          )}
 
-          <div className="flex gap-4 justify-center pt-4">
-            <button
-              onClick={() => router.push(`/order?table=${order.tableNumber}`)}
-              className="px-6 py-3 bg-white border-2 border-primary text-primary hover:bg-primary hover:text-white rounded-full font-semibold transition-all hover:scale-105"
-            >
-              Commander Plus
-            </button>
-            <button
-              onClick={() => router.push('/')}
-              className="px-6 py-3 bg-primary hover:bg-primary/90 text-white rounded-full font-semibold transition-all hover:scale-105"
-            >
-              Retour à l'accueil
-            </button>
+            {/* Order Details */}
+            <div className="p-6 sm:p-8">
+              <div className="bg-gray-50 rounded-2xl p-6 mb-6">
+                <div className="grid grid-cols-2 gap-4 mb-4">
+                  <div>
+                    <p className="text-sm text-gray-600 mb-1">Numéro de commande</p>
+                    <p className="text-2xl font-bold text-charcoal">#{order.orderNumber}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-sm text-gray-600 mb-1">Table</p>
+                    <p className="text-2xl font-bold text-primary">{order.tableNumber}</p>
+                  </div>
+                </div>
+                <p className="text-gray-600 text-center">
+                  Votre commande a été envoyée à la cuisine
+                </p>
+              </div>
+
+              {/* Items */}
+              <div className="mb-6">
+                <h2 className="text-xl font-bold text-charcoal mb-4">Votre commande</h2>
+                <div className="space-y-3">
+                  {order.items.map((item, index) => (
+                    <div
+                      key={index}
+                      className="flex items-start justify-between p-4 bg-gray-50 rounded-xl"
+                    >
+                      <div className="flex-1">
+                        <div className="font-semibold text-charcoal">{item.menuItemName}</div>
+                        {item.specialInstructions && (
+                          <div className="text-sm text-gray-600 mt-1">
+                            Note: {item.specialInstructions}
+                          </div>
+                        )}
+                      </div>
+                      <div className="text-right ml-4">
+                        <div className="font-bold text-primary">×{item.quantity}</div>
+                        <div className="text-sm text-gray-600">
+                          {(item.unitPrice * item.quantity).toFixed(2)}€
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Total */}
+              <div className="border-t-2 border-gray-200 pt-4 mb-6">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-gray-600">Sous-total</span>
+                  <span className="font-semibold">{order.subtotal.toFixed(2)}€</span>
+                </div>
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-gray-600">TVA (10%)</span>
+                  <span className="font-semibold">{order.tax.toFixed(2)}€</span>
+                </div>
+                <div className="flex justify-between items-center text-xl font-bold text-charcoal pt-2 border-t border-gray-200">
+                  <span>Total</span>
+                  <span className="text-primary">{order.total.toFixed(2)}€</span>
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div className="flex flex-col sm:flex-row gap-3">
+                <Link
+                  href={`/order?table=${order.tableNumber}`}
+                  className="flex-1 px-6 py-4 bg-primary hover:bg-primary/90 text-white rounded-xl font-bold text-center transition-all hover:scale-105 flex items-center justify-center gap-2"
+                >
+                  <ArrowLeft className="w-5 h-5" />
+                  Commander à nouveau
+                </Link>
+                <Link
+                  href="/"
+                  className="flex-1 px-6 py-4 bg-gray-200 hover:bg-gray-300 text-charcoal rounded-xl font-bold text-center transition-all hover:scale-105 flex items-center justify-center gap-2"
+                >
+                  <Home className="w-5 h-5" />
+                  Accueil
+                </Link>
+              </div>
+            </div>
+          </div>
+
+          {/* Info Box */}
+          <div className="mt-6 bg-blue-50 border-2 border-blue-200 rounded-2xl p-6 text-center">
+            <p className="text-blue-900 font-semibold">
+              💡 Un membre de notre équipe vous servira bientôt !
+            </p>
           </div>
         </div>
       </div>
     </div>
+  )
+}
+
+export default function SuccessPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-cream flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+            <p className="text-charcoal font-medium">Chargement...</p>
+          </div>
+        </div>
+      }
+    >
+      <SuccessPageContent />
+    </Suspense>
   )
 }

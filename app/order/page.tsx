@@ -1,5 +1,6 @@
 'use client'
 
+import { Suspense } from 'react'
 import { useEffect, useState } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { ShoppingCart, Plus, Minus, AlertCircle, ArrowRight } from 'lucide-react'
@@ -8,7 +9,7 @@ import { menuData, categories } from '@/lib/menuData'
 import { MenuItem } from '@/lib/types'
 import toast, { Toaster } from 'react-hot-toast'
 
-export default function OrderPage() {
+function OrderPageContent() {
   const searchParams = useSearchParams()
   const router = useRouter()
   const tableNumber = searchParams.get('table')
@@ -176,7 +177,7 @@ export default function OrderPage() {
         </div>
       </div>
 
-      {/* Menu Items - Dynamic padding based on all fixed elements */}
+      {/* Menu Items */}
       <div 
         className={`container mx-auto px-4 py-8 transition-all duration-300 ${
           cartItemCount > 0
@@ -267,5 +268,22 @@ export default function OrderPage() {
         </div>
       )}
     </div>
+  )
+}
+
+export default function OrderPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-cream flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+            <p className="text-charcoal font-medium">Chargement...</p>
+          </div>
+        </div>
+      }
+    >
+      <OrderPageContent />
+    </Suspense>
   )
 }
