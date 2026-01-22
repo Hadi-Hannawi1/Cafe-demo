@@ -133,7 +133,7 @@ export default function Navbar() {
         </div>
       </nav>
 
-      {/* Mobile Menu - Full Screen with Solid Background */}
+      {/* Mobile Menu - Clean & Simple */}
       <div
         className={`md:hidden fixed inset-0 z-[95] transition-all duration-300 ${
           isMobileMenuOpen
@@ -147,32 +147,20 @@ export default function Navbar() {
           onClick={() => setIsMobileMenuOpen(false)}
         />
 
-        {/* Menu Panel - Slides from Right */}
+        {/* Menu Panel - Clean White */}
         <div
-          className={`absolute top-0 right-0 bottom-0 w-80 bg-white shadow-2xl transform transition-transform duration-300 ${
+          className={`absolute top-0 right-0 w-72 bg-white shadow-2xl transform transition-transform duration-300 rounded-l-2xl ${
             isMobileMenuOpen ? "translate-x-0" : "translate-x-full"
           }`}
+          style={{ maxHeight: 'calc(100vh - 2rem)', top: '1rem' }}
         >
-          {/* Header */}
-          <div className="bg-gradient-to-br from-primary via-primary to-[#6B0F2A] px-6 py-8 pt-24">
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center">
-                <Coffee className="w-7 h-7 text-white" />
-              </div>
-              <div>
-                <h3 className="text-2xl font-bold text-white">Votre Café</h3>
-                <p className="text-sm text-white/80">Navigation</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Navigation Links */}
-          <div className="flex flex-col p-6 space-y-2 bg-white h-full overflow-y-auto">
+          {/* Navigation Links - No Header */}
+          <div className="flex flex-col p-6 pt-24 space-y-2 bg-white overflow-y-auto h-full rounded-l-2xl">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
-                className="text-charcoal hover:bg-cream hover:text-primary text-lg font-semibold transition-all py-4 px-5 rounded-xl border-2 border-transparent hover:border-primary/20"
+                className="text-charcoal hover:bg-cream hover:text-primary text-base font-semibold transition-all py-3 px-4 rounded-lg"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 {link.label}
@@ -180,23 +168,23 @@ export default function Navbar() {
             ))}
 
             {/* Commander Button */}
-            <div className="pt-4">
+            <div className="pt-3">
               <Link
                 href="/order?table=1"
-                className="block bg-gradient-to-r from-primary to-[#6B0F2A] hover:from-primary/90 hover:to-[#6B0F2A]/90 text-white px-6 py-4 rounded-xl font-bold text-center transition-all hover:scale-105 shadow-xl text-lg"
+                className="block bg-gradient-to-r from-primary to-[#6B0F2A] hover:from-primary/90 hover:to-[#6B0F2A]/90 text-white px-5 py-3 rounded-lg font-bold text-center transition-all hover:scale-105 shadow-lg text-base"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
-                🛒 Commander
+                Commander
               </Link>
             </div>
 
             {/* Admin Link */}
             <Link
               href="/admin/kitchen"
-              className="text-accent hover:bg-accent/10 hover:text-accent text-lg font-semibold transition-all py-4 px-5 rounded-xl border-2 border-transparent hover:border-accent/20"
+              className="text-accent hover:bg-accent/10 hover:text-accent text-base font-semibold transition-all py-3 px-4 rounded-lg"
               onClick={() => setIsMobileMenuOpen(false)}
             >
-              ⚙️ Admin
+              Admin
             </Link>
           </div>
         </div>
